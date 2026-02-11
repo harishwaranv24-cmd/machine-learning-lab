@@ -1,0 +1,127 @@
+import math
+from collections import Counter
+
+# -----------------------------------------
+# Step 1: Calculate Entropy
+# -----------------------------------------
+def entropy(data):
+    labels = [row[-1] for row in data]
+    total = len(labels)
+    label_count = Counter(labels)
+    
+    ent = 0
+    for count in label_count.values():
+        probability = count / total
+        ent -= probability * math.log2(probability)
+    
+    return ent
+
+# -----------------------------------------
+# Step 2: Calculate Information Gain
+# -----------------------------------------
+def information_gain(data, attribute_index):
+    total_entropy = entropy(data)
+    total = len(data)
+    
+    values = set([row[attribute_index] for row in data])
+    weighted_entropy = 0
+    
+    for value in values:
+        subset = [row for row in data if row[attribute_index] == value]
+        weighted_entropy += (len(subset) / total) * entropy(subset)
+    
+    return total_entropy - weighted_entropy
+
+# -----------------------------------------
+# Step 3: Build Decision Tree using ID3
+# -----------------------------------------
+def id3(data, attributes):
+    labels = [row[-1] for row in data]
+    
+    # If all examples have same class
+    if labels.count(labels[0]) == len(labels):
+        return labels[0]
+    
+    # If no attributes left
+    if len(attributes) == 0:
+        return Counter(labels).most_common(1)[0][0]
+    
+    # Select attribute with highest information gain
+    gains = [information_gain(data, i) for i in attributes]
+    best_attr = attributes[gains.index(max(gains))]
+    
+    tree = {best_attr: {}}
+    
+    values = set([row[best_attr] for row in data])
+    for value in values:
+        subset = [row for row in data if row[best_attr] == value]
+        
+        if not subset:
+            tree[best_attr][value] = Counter(labels).most_common(1)[0][0]
+        else:
+            new_attributes = attributes.copy()
+            new_attributes.remove(best_attr)
+            tree[best_attr][value] = id3(subset, new_attributes)
+    
+    return tree
+
+# -----------------------------------------
+# Step 4: Predict Function
+# -----------------------------------------
+def predict(tree, sample):
+    if not isinstance(tree, dict):
+        return tree
+    
+    attribute = next(iter(tree))
+    value = sample[attribute]
+    
+    return predict(tree[attribute][value], sample)
+
+
+# -----------------------------------------
+# Step 5: Dataset (Play Tennis)
+# -----------------------------------------
+# Attributes:
+# 0: Outlook, 1: Temperature, 2: Humidity, 3: Wind, 4: Play
+
+data = [
+    ['Sunny', 'Hot', 'High', 'Weak', 'No'],
+    ['Sunny', 'Hot', 'High', 'Strong', 'No'],
+    ['Overcast', 'Hot', 'High', 'Weak', 'Yes'],
+    ['Rain', 'Mild', 'High', 'Weak', 'Yes'],
+    ['Rain', 'Cool', 'Normal', 'Weak', 'Yes'],
+    ['Rain', 'Cool', 'Normal', 'Strong', 'No'],
+    ['Overcast', 'Cool', 'Normal', 'Strong', 'Yes'],
+    ['Sunny', 'Mild', 'High', 'Weak', 'No'],
+    ['Sunny', 'Cool', 'Normal', 'Weak', 'Yes'],
+    ['Rain', 'Mild', 'Normal', 'Weak', 'Yes'],
+    ['Sunny', 'Mild', 'Normal', 'Strong', 'Yes'],
+    ['Overcast', 'Mild', 'High', 'Strong', 'Yes'],
+    ['Overcast', 'Hot', 'Normal', 'Weak', 'Yes'],
+    ['Rain', 'Mild', 'High', 'Strong', 'No']
+]
+
+attributes = [0, 1, 2, 3]  # Attribute indices
+
+# -----------------------------------------
+# Step 6: Build Tree
+# -----------------------------------------
+tree = id3(data, attributes)
+
+print("Decision Tree:")
+print(tree)
+
+# -----------------------------------------
+# Step 7: Classify New Sample
+# -----------------------------------------
+new_sample = {
+    0: 'Sunny',
+    1: 'Cool',
+    2: 'High',
+    3: 'Strong'
+}
+
+result = predict(tree, new_sample)
+
+print("\nNew Sample:", new_sample)
+print("Prediction:", result)
