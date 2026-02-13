@@ -1,0 +1,58 @@
+import csv
+import copy
+
+# Load CSV file
+with open("one.csv", "r") as file:
+    data = list(csv.reader(file))
+
+# Remove header
+header = data[0]
+data = data[1:]
+
+num_attributes = len(header) - 1
+
+# Initialize Specific (S) and General (G)
+S = ['0'] * num_attributes
+G = [['?'] * num_attributes]
+
+print("Initial Specific Hypothesis (S):", S)
+print("Initial General Hypothesis (G):", G)
+print("--------------------------------------------------")
+
+for row in data:
+    attributes = row[:-1]
+    label = row[-1].lower()
+
+    if label == "yes":   # Positive Example
+        
+        # Update S
+        for i in range(num_attributes):
+            if S[i] == '0':
+                S[i] = attributes[i]
+            elif S[i] != attributes[i]:
+                S[i] = '?'
+
+        # Remove inconsistent hypotheses from G
+        G = [g for g in G if all(
+            g[i] == '?' or g[i] == S[i] for i in range(num_attributes)
+        )]
+
+    elif label == "no":   # Negative Example
+        
+        new_G = []
+        for g in G:
+            for i in range(num_attributes):
+                if g[i] == '?':
+                    if attributes[i] != S[i]:
+                        new_hypothesis = g.copy()
+                        new_hypothesis[i] = S[i]
+                        new_G.append(new_hypothesis)
+        G = new_G
+
+    print("After processing example:", row)
+    print("S:", S)
+    print("G:", G)
+    print("--------------------------------------------------")
+
+print("Final Specific Hypothesis (S):", S)
+print("Final General Hypothesis (G):", G)
