@@ -2,7 +2,7 @@ import csv
 import copy
 
 # Load CSV file
-with open("one.csv", "r") as file:
+with open("enjoy_sport.csv", "r") as file:
     data = list(csv.reader(file))
 
 # Remove header
