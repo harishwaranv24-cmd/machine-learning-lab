@@ -3,7 +3,7 @@ import numpy as np
 import math
 
 # Load Dataset
-data = pd.read_csv("two.csv")
+data = pd.read_csv("play_tennis.csv")
 
 print("Dataset:\n")
 print(data)
