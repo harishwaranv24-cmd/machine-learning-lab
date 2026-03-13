@@ -1,0 +1,17 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score
+
+df=pd.read_csv("play_tennis.csv")
+le=LabelEncoder()
+for c in df.columns: df[c]=le.fit_transform(df[c])
+
+X=df.drop("Play",axis=1); y=df["Play"]
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=0.3,random_state=1)
+
+m=GaussianNB().fit(Xtr,ytr)
+p=m.predict(Xte)
+print("Pred:",p)
+print("Accuracy:",accuracy_score(yte,p))
