@@ -1,0 +1,16 @@
+import pandas as pd
+from pgmpy.models import BayesianNetwork
+from pgmpy.estimators import MaximumLikelihoodEstimator
+from pgmpy.inference import VariableElimination
+
+data=pd.DataFrame({
+'Fever':[1,1,1,0,0,1],
+'Cough':[1,1,0,1,0,1],
+'Breath':[1,0,0,1,0,1],
+'Corona':[1,1,0,0,0,1]})
+
+model=BayesianNetwork([('Fever','Corona'),('Cough','Corona'),('Breath','Corona')])
+model.fit(data,estimator=MaximumLikelihoodEstimator)
+
+q=VariableElimination(model).query(['Corona'],evidence={'Fever':1,'Cough':1,'Breath':1})
+print(q)
