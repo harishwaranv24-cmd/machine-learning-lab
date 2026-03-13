@@ -1,0 +1,11 @@
+import pandas as pd
+from sklearn.cluster import KMeans
+from sklearn.mixture import GaussianMixture
+
+X=pd.read_csv("cluster.csv")
+
+k=KMeans(n_clusters=2).fit(X)
+g=GaussianMixture(n_components=2).fit(X)
+
+print("KMeans:",k.labels_)
+print("EM:",g.predict(X))
