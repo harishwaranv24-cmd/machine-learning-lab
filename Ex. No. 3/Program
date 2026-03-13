@@ -1,0 +1,27 @@
+import numpy as np
+
+# dataset (XOR)
+X = np.array([[0,0],[0,1],[1,0],[1,1]])
+y = np.array([[0],[1],[1],[0]])
+
+# activation
+sig = lambda x: 1/(1+np.exp(-x))
+dsig = lambda x: x*(1-x)
+
+# weights
+np.random.seed(1)
+w1 = np.random.rand(2,2)
+w2 = np.random.rand(2,1)
+
+# training
+for i in range(10000):
+    h = sig(X@w1)
+    o = sig(h@w2)
+    
+    e = y-o
+    w2 += h.T@(e*dsig(o))
+    w1 += X.T@((e*dsig(o))@w2.T*dsig(h))
+
+# test
+print("Predictions:")
+print(np.round(sig(sig(X@w1)@w2),3))
