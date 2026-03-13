@@ -1,0 +1,16 @@
+import pandas as pd, numpy as np, matplotlib.pyplot as plt
+
+d=pd.read_csv("lwr.csv")
+X=d.x.values; Y=d.y.values; tau=0.5
+
+def lwr(x):
+    w=np.exp(-(X-x)**2/(2*tau**2))
+    b=np.sum(w*Y)/np.sum(w)
+    return b
+
+xp=np.linspace(min(X),max(X),50)
+yp=[lwr(i) for i in xp]
+
+plt.scatter(X,Y)
+plt.plot(xp,yp,'r')
+plt.show()
